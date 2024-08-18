@@ -14,3 +14,6 @@ It will create folder 'node_modules' and file 'package-lock.json'
 Run command:
 #### `npm run dev`
 After running successfully, open [http://localhost:3000](http://localhost:3000) to see the result in your browser.
+
+### User Interface Image:
+![UI](https://github.com/user-attachments/assets/c59c46a0-f527-45eb-886c-f46b2a5c5c33)
