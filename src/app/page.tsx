@@ -1,95 +1,73 @@
-import Image from "next/image";
+'use client'
+
 import styles from "./page.module.css";
+import { useEffect, useState } from "react";
+import BuyTable from "@/components/buy.table";
+import SellTable from "@/components/sell.table";
+import "bootstrap-icons/font/bootstrap-icons.css"
 
 export default function Home() {
+  const depthOption = [15, 30, 50, 100];
+  const groupOption = [0, 1, 2];
+
+  const [depth, setDepth] = useState(depthOption[0]);
+  const [group, setGroup] = useState(groupOption[0]);
+  const [orderBookData, setOrderBookData] = useState(Object());
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    setInterval(() => {
+      setTime(prev => prev + 1);
+    }, 1000);
+  }, [])
+
+  useEffect(() => {
+    async function getData() {
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/depth?limit=${depth}&symbol=BTCUSDT`);
+
+        if (!res.ok) {
+          throw new Error(`Response status: ${res.status}`);
+        }
+
+        const resData = await res.json();
+        setOrderBookData(resData);
+      } catch (error: any) {
+        console.error(error.message);
+      }
+    }
+
+    getData();
+  }, [depth, time]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className={styles.main}>
+      <div className={styles.setting}>
+        <div style={{display: "flex", gap: "10px"}}>
+          <h2>Order book</h2>
+          <i className="bi bi-dash-lg" style={{marginTop: "25px"}}></i>
+          <h4 style={{paddingTop: "4px"}}>BTC/USDT</h4>
+        </div>
+        <div style={{display: "flex", justifyContent: "flex-end"}}>
+          <label style={{paddingRight: "15px"}}>Depth:</label>
+          <select value={depth} onChange={(e) => setDepth(Number(e.target.value))}>
+            {depthOption.map((depth, index) => (
+              <option value={depth} key={index}>{depth}</option>
+            ))}
+          </select>
+          <label style={{paddingLeft: "60px", paddingRight: "15px"}}>Group:</label>
+          <select value={group} onChange={(e) => setGroup(Number(e.target.value))}>
+            {groupOption.map((group, index) => (
+              <option value={group} key={index}>{group} decimals</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className={styles.table}>
+        <BuyTable buyDatas={orderBookData["bids"]} group={group} />
+        <SellTable sellDatas={orderBookData["asks"]} group={group} />
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
