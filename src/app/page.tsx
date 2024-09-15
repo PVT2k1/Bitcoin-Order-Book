@@ -10,15 +10,19 @@ export default function Home() {
   const depthOption = [15, 30, 50, 100];
   const groupOption = [0, 1, 2];
 
-  const [depth, setDepth] = useState(depthOption[0]);
-  const [group, setGroup] = useState(groupOption[0]);
+  const [depth, setDepth] = useState<number>(depthOption[0]);
+  const [group, setGroup] = useState<number>(groupOption[0]);
   const [orderBookData, setOrderBookData] = useState(Object());
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState<number>(0);
 
   useEffect(() => {
-    setInterval(() => {
+    const timerID = setInterval(() => {
       setTime(prev => prev + 1);
     }, 1000);
+
+    return () => {
+      clearInterval(timerID);
+    }
   }, [])
 
   useEffect(() => {
@@ -30,7 +34,7 @@ export default function Home() {
           throw new Error(`Response status: ${res.status}`);
         }
 
-        const resData = await res.json();
+        const resData: Object = await res.json();
         setOrderBookData(resData);
       } catch (error: any) {
         console.error(error.message);
